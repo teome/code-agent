@@ -61,16 +61,31 @@ def process_prompt(
 
         messages.append({"role": "user", "content": prompt})
 
-        content, response = openai_chat_completions_create(
-            messages, model=model, client=client, max_tokens=max_tokens,
-            return_response=True, max_retries=2)
-        completion_message = response.choices[0].message.model_dump(
-            exclude_unset=True)
+        # content, response = openai_chat_completions_create(
+        #     messages, model=model, client=client, max_tokens=max_tokens,
+        #     return_response=True, max_retries=2)
+        # completion_message = response.choices[0].message.model_dump(
+        #     exclude_unset=True)
 
 
-        content = completion_message["content"]
-        print(colored("Response:\n", "green") +
-              colored(content, "cyan"), flush=True)
+        # content = completion_message["content"]
+        # print(colored("Response:\n", "green") +
+        #       colored(content, "cyan"), flush=True)
+
+        stream = client.chat.completions.create(
+            messages=messages,
+            model=model,
+            max_tokens=max_tokens,
+            stream=True,
+        )
+
+        content = ""
+        print(colored("Response:\n", "green"))
+        for chunk in stream:
+            chunk_content = chunk.choices[0].delta.content or ""
+            content += chunk_content
+            print(colored(chunk_content, "cyan"), end="")
+        print("\n")
 
         if append_response_content:
             messages.append({"role": "assistant", "content": content})
