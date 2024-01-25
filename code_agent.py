@@ -59,10 +59,10 @@ def process_prompt(
             """
             url = "https://cf1.zzounds.com/media/productmedia/fit,600by600/quality,85/Prophet-5_Left_Angle_820175-435c1c5a0e3d3a898c11179315824fc9.jpg"  # pylint: disable=unused-variable, possibly-unused-variable, line-too-long
 
-        messages_req = messages + [{"role": "user", "content": prompt}]
+        messages.append({"role": "user", "content": prompt})
 
         content, response = openai_chat_completions_create(
-            messages_req, model=model, client=client, max_tokens=max_tokens,
+            messages, model=model, client=client, max_tokens=max_tokens,
             return_response=True, max_retries=2)
         completion_message = response.choices[0].message.model_dump(
             exclude_unset=True)
@@ -74,6 +74,9 @@ def process_prompt(
 
         if append_response_content:
             messages.append({"role": "assistant", "content": content})
+        else:
+            # clear to just system message for next run
+            messages = messages[:1]
 
         if '```python' not in content:
             print("No code block found in response\n\n")
