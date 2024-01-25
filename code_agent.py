@@ -60,17 +60,6 @@ def process_prompt(
 
         messages.append({"role": "user", "content": prompt})
 
-        # content, response = openai_chat_completions_create(
-        #     messages, model=model, client=client, max_tokens=max_tokens,
-        #     return_response=True, max_retries=2)
-        # completion_message = response.choices[0].message.model_dump(
-        #     exclude_unset=True)
-
-
-        # content = completion_message["content"]
-        # print(colored("Response:\n", "green") +
-        #       colored(content, "cyan"), flush=True)
-
         stream = client.chat.completions.create(
             messages=messages,
             model=model,
@@ -121,18 +110,16 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    client = openai.Client()
+    client = openai.Client(timeout=60, max_retries=3)
 
     # make sure the model is valid
     model_list = get_models(client)
+    if args.model not in model_list:
+        print("Invalid model specified: " + args.model)
+        sys.exit(1)
 
     if args.append:
         print("Appending response content to messages. The max tokens limit may be exceeded for multiple responses.")
-
-    if args.model not in model_list:
-
-        print("Invalid model specified: " + args.model)
-        sys.exit(1)
 
     print("Using model: " + colored(args.model, "yellow"))
     print("Using system prompt: " + colored(args.system_prompt, "yellow"))
