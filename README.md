@@ -11,4 +11,9 @@ This is a very barebones POC code agent that uses LLM chat endpoints to generate
 ## NOTE:
 - Check generated code before running it! There is no safety here and something like `sudo rm -rf /` would be possible. Run in docker to be safe.
 
+## Usage
+
+```
+python code_agent.py --model gpt-4 --append --max-tokens 2048
+```
 
